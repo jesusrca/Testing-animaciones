@@ -101,22 +101,48 @@ if (heroTitle) {
   }).join('')
 }
 
-const heroTag = document.querySelector('.hero-tag')
-if (heroTag) {
-  const tagChars = heroTag.innerText.split('')
-  heroTag.innerHTML = tagChars.map(char => `<span class="char" style="opacity: 0; display: inline-block;">${char === ' ' ? '&nbsp;' : char}</span>`).join('')
+// 4. Hacker Effect Utility
+function animateHackerText(el, delay = 0) {
+  if (!el) return;
+  const originalText = el.innerText;
+  const letters = originalText.split("");
+  const codeChars = "01$#%&@*ZX<>?/!{}[]";
+  el.innerHTML = "";
+  el.style.opacity = 1;
+
+  letters.forEach((letter, i) => {
+    const span = document.createElement("span");
+    span.innerText = letter === " " ? "\u00A0" : codeChars[Math.floor(Math.random() * codeChars.length)];
+    span.style.opacity = "0";
+    span.style.display = "inline-block";
+    el.appendChild(span);
+
+    gsap.to(span, {
+      opacity: 1,
+      duration: 0.1,
+      delay: delay + (i * 0.05),
+      onStart: () => {
+        if (letter !== " ") {
+          let count = 0;
+          const interval = setInterval(() => {
+            span.innerText = codeChars[Math.floor(Math.random() * codeChars.length)];
+            count++;
+            if (count > 4) {
+              clearInterval(interval);
+              span.innerText = letter;
+            }
+          }, 50);
+        }
+      }
+    });
+  });
 }
 
-// Logo Split Flap Setup
-const logo = document.querySelector('#logo')
-if (logo) {
-  const logoText = logo.innerText
-  logo.innerHTML = logoText.split('').map(char => {
-    return `<span class="flap-char-wrapper"><span class="flap-char">${char === ' ' ? '&nbsp;' : char}</span></span>`
-  }).join('')
-}
+// Prepare Hacker elements
+const logo = document.querySelector('#logo');
+const navLinks = document.querySelectorAll('.nav-links a');
 
-// 4. Reveal Animations Prep
+// 5. Reveal Animations Prep
 // Pre-split ALL reveal-text immediately to prevent flash
 const revealTexts = document.querySelectorAll('.reveal-text')
 revealTexts.forEach(revealText => {
@@ -125,16 +151,22 @@ revealTexts.forEach(revealText => {
 })
 
 function initAnimations() {
-  // Logo Animation
-  if (logo) {
-    gsap.to("#logo .flap-char", {
-      y: "0%",
-      duration: 1,
-      stagger: 0.05,
-      ease: "power4.out",
-      delay: 0.2
-    })
-  }
+  // Hacker reveal for Logo (0.5s) and then Links (1.5s)
+  if (logo) animateHackerText(logo, 0.5);
+  navLinks.forEach((link, i) => {
+    animateHackerText(link, 1.5 + (i * 0.1));
+  });
+
+  // Smooth scroll for internal links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        lenis.scrollTo(target);
+      }
+    });
+  });
 
   // Hero reveal
   if (heroTitle) {
@@ -144,7 +176,11 @@ function initAnimations() {
     )
   }
 
+  const heroTag = document.querySelector('.hero-tag');
   if (heroTag) {
+    // Re-split hero-tag for animation logic
+    const tagText = heroTag.innerText;
+    heroTag.innerHTML = tagText.split('').map(char => `<span class="char" style="opacity: 0; display: inline-block;">${char === ' ' ? '&nbsp;' : char}</span>`).join('');
     gsap.to(".hero-tag .char", { opacity: 1, x: 0, duration: 1, stagger: 0.03, ease: "power3.out", delay: 0.8 })
   }
 
@@ -365,6 +401,17 @@ function initAnimations() {
 
   // Refresh ScrollTrigger to account for pinned sections
   ScrollTrigger.refresh()
+
+  // Blog Link Recurring Highlight
+  const blogLink = document.querySelector('#blog-link');
+  if (blogLink) {
+    setInterval(() => {
+      blogLink.classList.add('highlight-pulse');
+      setTimeout(() => {
+        blogLink.classList.remove('highlight-pulse');
+      }, 3000);
+    }, 8000); // Pulse every 8 seconds
+  }
 }
 
 // 8. Magnetic Buttons (Persistent)
