@@ -118,9 +118,9 @@ function initAnimations() {
     delay: 0.8
   })
 
-  gsap.from(".hero-footer", {
-    opacity: 0,
-    y: 20,
+  gsap.to(".hero-footer", {
+    opacity: 0.8,
+    y: 0,
     duration: 1.5,
     ease: "power3.out",
     delay: 1.2
@@ -228,6 +228,51 @@ function initAnimations() {
   splitToChars(aboutFooter)
   if (aboutIcon) gsap.set(aboutIcon, { scale: 0, opacity: 0 })
 
+  // Sequential Reveal - Triggered earlier
+  ScrollTrigger.create({
+    trigger: ".about-pin",
+    start: "top 60%",
+    onEnter: () => {
+      const tl = gsap.timeline()
+
+      // 1. Header
+      tl.to(aboutHeader.querySelectorAll('.char'), {
+        opacity: 1,
+        stagger: 0.02,
+        duration: 0.1,
+        ease: "none"
+      })
+        // 2. First Title
+        .to(aboutTitles[0].querySelectorAll('.char'), {
+          opacity: 1,
+          stagger: 0.04,
+          duration: 0.1,
+          ease: "none"
+        }, "+=0.1")
+        // 3. Icon
+        .to(aboutIcon, {
+          scale: 1,
+          opacity: 1,
+          duration: 0.4,
+          ease: "back.out(2)"
+        }, "+=0.1")
+        // 4. Second Title
+        .to(aboutTitles[1].querySelectorAll('.char'), {
+          opacity: 1,
+          stagger: 0.04,
+          duration: 0.1,
+          ease: "none"
+        }, "+=0.1")
+        // 5. Footer
+        .to(aboutFooter.querySelectorAll('.char'), {
+          opacity: 1,
+          stagger: 0.02,
+          duration: 0.1,
+          ease: "none"
+        }, "+=0.2")
+    }
+  })
+
   gsap.to(aboutBox, {
     scrollTrigger: {
       trigger: ".about-pin",
@@ -235,45 +280,6 @@ function initAnimations() {
       end: "bottom top",
       scrub: true,
       pin: true,
-      onEnter: () => {
-        const tl = gsap.timeline()
-
-        // 1. Header
-        tl.to(aboutHeader.querySelectorAll('.char'), {
-          opacity: 1,
-          stagger: 0.02,
-          duration: 0.1,
-          ease: "none"
-        })
-          // 2. First Title
-          .to(aboutTitles[0].querySelectorAll('.char'), {
-            opacity: 1,
-            stagger: 0.04,
-            duration: 0.1,
-            ease: "none"
-          }, "+=0.1")
-          // 3. Icon
-          .to(aboutIcon, {
-            scale: 1,
-            opacity: 1,
-            duration: 0.4,
-            ease: "back.out(2)"
-          }, "+=0.1")
-          // 4. Second Title
-          .to(aboutTitles[1].querySelectorAll('.char'), {
-            opacity: 1,
-            stagger: 0.04,
-            duration: 0.1,
-            ease: "none"
-          }, "+=0.1")
-          // 5. Footer
-          .to(aboutFooter.querySelectorAll('.char'), {
-            opacity: 1,
-            stagger: 0.02,
-            duration: 0.1,
-            ease: "none"
-          }, "+=0.2")
-      },
       onUpdate: (self) => {
         if (self.progress > 0.8) {
           gsap.to(".about-pin", { backgroundColor: "#eaeaea", duration: 0.5, overwrite: "auto" })
