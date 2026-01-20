@@ -299,6 +299,7 @@ section {
 
 .about-details .reveal-text {
   font-size: 8vw;
+  font-weight: 700;
   line-height: 1.1;
   max-width: 100%;
   text-transform: uppercase;
@@ -321,21 +322,25 @@ section {
   background: linear-gradient(90deg,
       var(--text-color) 0%,
       var(--text-color) 35%,
-      #ff3e00 45%,
+      #ff3e00 42%,
       #ff00ea 50%,
-      #0070ff 55%,
+      #0070ff 58%,
       var(--text-color) 65%,
       var(--text-color) 100%);
-  background-size: 200% auto;
+  background-size: 400% auto;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shine 4s linear infinite;
+  animation: shine 15s ease-in-out infinite;
 }
 
 @keyframes shine {
   0% {
-    background-position: -100% center;
+    background-position: 0% center;
+  }
+
+  60% {
+    background-position: 100% center;
   }
 
   100% {

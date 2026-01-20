@@ -201,15 +201,32 @@ function initAnimations() {
     detailText.addEventListener('touchmove', handleMove, { passive: true })
   }
 
-  // Box Expansion Animation
+  // Box Expansion Animation + Sequence Reveal
   const aboutBox = document.querySelector('.about-box')
   const aboutTitles = aboutBox.querySelectorAll('.about-box-title')
+  const aboutHeader = aboutBox.querySelector('.about-box-header')
+  const aboutFooter = aboutBox.querySelector('.about-box-footer')
+  const aboutIcon = aboutBox.querySelector('.about-box-icon')
 
-  // Split titles into characters for typewriter effect
-  aboutTitles.forEach(title => {
-    const text = title.innerText
-    title.innerHTML = text.split('').map(char => `<span class="char" style="opacity: 0; display: inline-block;">${char === ' ' ? '&nbsp;' : char}</span>`).join('')
-  })
+  // Helper to split text into chars
+  const splitToChars = (el) => {
+    const spans = el.querySelectorAll('span')
+    if (spans.length > 0) {
+      spans.forEach(span => {
+        const text = span.innerText
+        span.innerHTML = text.split('').map(char => `<span class="char" style="opacity: 0; display: inline-block;">${char === ' ' ? '&nbsp;' : char}</span>`).join('')
+      })
+    } else {
+      const text = el.innerText
+      el.innerHTML = text.split('').map(char => `<span class="char" style="opacity: 0; display: inline-block;">${char === ' ' ? '&nbsp;' : char}</span>`).join('')
+    }
+  }
+
+  // Split everything
+  aboutTitles.forEach(splitToChars)
+  splitToChars(aboutHeader)
+  splitToChars(aboutFooter)
+  if (aboutIcon) gsap.set(aboutIcon, { scale: 0, opacity: 0 })
 
   gsap.to(aboutBox, {
     scrollTrigger: {
@@ -219,14 +236,43 @@ function initAnimations() {
       scrub: true,
       pin: true,
       onEnter: () => {
-        aboutTitles.forEach(title => {
-          gsap.to(title.querySelectorAll('.char'), {
+        const tl = gsap.timeline()
+
+        // 1. Header
+        tl.to(aboutHeader.querySelectorAll('.char'), {
+          opacity: 1,
+          stagger: 0.02,
+          duration: 0.1,
+          ease: "none"
+        })
+          // 2. First Title
+          .to(aboutTitles[0].querySelectorAll('.char'), {
             opacity: 1,
-            stagger: 0.05,
+            stagger: 0.04,
             duration: 0.1,
             ease: "none"
-          })
-        })
+          }, "+=0.1")
+          // 3. Icon
+          .to(aboutIcon, {
+            scale: 1,
+            opacity: 1,
+            duration: 0.4,
+            ease: "back.out(2)"
+          }, "+=0.1")
+          // 4. Second Title
+          .to(aboutTitles[1].querySelectorAll('.char'), {
+            opacity: 1,
+            stagger: 0.04,
+            duration: 0.1,
+            ease: "none"
+          }, "+=0.1")
+          // 5. Footer
+          .to(aboutFooter.querySelectorAll('.char'), {
+            opacity: 1,
+            stagger: 0.02,
+            duration: 0.1,
+            ease: "none"
+          }, "+=0.2")
       },
       onUpdate: (self) => {
         if (self.progress > 0.8) {
