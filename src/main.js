@@ -25,26 +25,33 @@ const cursor = document.querySelector('.cursor-circle')
 const mouse = { x: 0, y: 0 }
 const pos = { x: 0, y: 0 }
 
+let initialized = false
+
 window.addEventListener('mousemove', (e) => {
   mouse.x = e.clientX
   mouse.y = e.clientY
-  cursor.classList.add('active')
+
+  if (!initialized) {
+    pos.x = mouse.x
+    pos.y = mouse.y
+    initialized = true
+    gsap.to(cursor, { autoAlpha: 1, duration: 0.3 })
+  }
 })
 
 gsap.ticker.add(() => {
   pos.x += (mouse.x - pos.x) * 0.15
   pos.y += (mouse.y - pos.y) * 0.15
-  gsap.set(cursor, { x: pos.x, y: pos.y })
+  gsap.set(cursor, {
+    x: pos.x,
+    y: pos.y,
+    xPercent: -50,
+    yPercent: -50
+  })
 })
 
 // Cursor States Logic
-const links = document.querySelectorAll('a, button, .magnetic-btn')
 const textElements = document.querySelectorAll('h1, h2, .about-box, .work-item, .marquee-text')
-
-links.forEach(el => {
-  el.addEventListener('mouseenter', () => cursor.classList.add('pulse'))
-  el.addEventListener('mouseleave', () => cursor.classList.remove('pulse'))
-})
 
 textElements.forEach(el => {
   el.addEventListener('mouseenter', () => cursor.classList.add('hover-text'))
@@ -307,6 +314,26 @@ function initAnimations() {
             }
           })
         }
+      }
+    })
+  } else {
+    // Mobile center detection
+    const workImages = document.querySelectorAll('.work-item img')
+    ScrollTrigger.create({
+      trigger: ".horizontal-section",
+      start: "top bottom",
+      end: "bottom top",
+      onUpdate: () => {
+        workImages.forEach(img => {
+          const rect = img.getBoundingClientRect()
+          const center = window.innerHeight / 2
+          const imgCenter = rect.top + rect.height / 2
+          if (Math.abs(imgCenter - center) < window.innerHeight * 0.2) {
+            img.classList.add('active')
+          } else {
+            img.classList.remove('active')
+          }
+        })
       }
     })
   }
