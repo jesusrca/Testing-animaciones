@@ -16,11 +16,14 @@
     <div class="cursor-circle"></div>
 
     <nav class="nav">
-        <a href="/" class="nav-logo magnetic-btn">JESUS AGUILAR</a>
+        <a href="/" class="nav-logo" id="logo">JESUS AGUILAR</a>
         <div class="nav-links">
-            <a href="/" class="magnetic-btn">HOME</a>
-            <a href="/blog.html" class="magnetic-btn">BLOG</a>
+            <a href="/#about" class="magnetic-btn">ABOUT</a>
+            <a href="/blog.html" id="blog-link" class="magnetic-btn">BLOG</a>
+            <a href="/#work" class="magnetic-btn">WORK</a>
+            <a href="/#contact" class="magnetic-btn">CONTACT</a>
         </div>
+        <div class="mobile-menu-toggle">MENU</div>
     </nav>
 
     <main class="container">
@@ -76,6 +79,16 @@
             </div>
         </div>
     </footer>
+
+    <div class="mobile-menu-overlay">
+        <div class="mobile-menu-close">CLOSE</div>
+        <div class="mobile-links">
+            <a href="/#about">ABOUT</a>
+            <a href="/blog.html">BLOG</a>
+            <a href="/#work">WORK</a>
+            <a href="/#contact">CONTACT</a>
+        </div>
+    </div>
 
     <script type="module" src="/src/main.js"></script>
 </body>

@@ -14,6 +14,11 @@ const lenis = new Lenis({
   smoothWheel: true
 })
 
+// Inject Page Transition Overlay
+const transitionOverlay = document.createElement('div');
+transitionOverlay.classList.add('page-transition');
+document.body.appendChild(transitionOverlay);
+
 function raf(time) {
   lenis.raf(time)
   requestAnimationFrame(raf)
@@ -109,6 +114,7 @@ function animateHackerText(el, delay = 0) {
   const codeChars = "01$#%&@*ZX<>?/!{}[]";
   el.innerHTML = "";
   el.style.opacity = 1;
+  el.style.visibility = 'visible';
 
   letters.forEach((letter, i) => {
     const span = document.createElement("span");
@@ -138,10 +144,6 @@ function animateHackerText(el, delay = 0) {
   });
 }
 
-// Prepare Hacker elements
-const logo = document.querySelector('#logo');
-const navLinks = document.querySelectorAll('.nav-links a');
-
 // 5. Reveal Animations Prep
 // Pre-split ALL reveal-text immediately to prevent flash
 const revealTexts = document.querySelectorAll('.reveal-text')
@@ -151,6 +153,10 @@ revealTexts.forEach(revealText => {
 })
 
 function initAnimations() {
+  // Re-select Hacker elements to ensure they exist (fixes Blog page issue)
+  const logo = document.querySelector('#logo');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
   // Hacker reveal for Logo (0.5s) and then Links (1.5s)
   if (logo) animateHackerText(logo, 0.5);
   navLinks.forEach((link, i) => {
@@ -405,12 +411,85 @@ function initAnimations() {
   // Blog Link Recurring Highlight
   const blogLink = document.querySelector('#blog-link');
   if (blogLink) {
+    // Initial pulse soon after load
+    setTimeout(() => {
+      blogLink.classList.add('highlight-pulse');
+      setTimeout(() => blogLink.classList.remove('highlight-pulse'), 3000);
+    }, 2000);
+
+    // Recurring pulse (faster: 5s interval)
     setInterval(() => {
       blogLink.classList.add('highlight-pulse');
       setTimeout(() => {
         blogLink.classList.remove('highlight-pulse');
       }, 3000);
-    }, 8000); // Pulse every 8 seconds
+    }, 5000);
+  }
+
+  // Handle Internal Page Transitions (Exit Animation)
+  const allLinks = document.querySelectorAll('a');
+  allLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    // Check if it's an internal link (relative or same domain) and not just an anchor
+    if (href && (href.startsWith('/') || href.includes(window.location.hostname)) && !href.startsWith('#')) {
+      link.addEventListener('click', (e) => {
+        // If it's the current page (just hash change or same URL), let default happen or handled by Lenis
+        if (href === window.location.pathname || href === window.location.href) return;
+
+        // If it's a real navigation
+        e.preventDefault();
+
+        gsap.to(transitionOverlay, {
+          yPercent: 0,
+          duration: 0.8,
+          ease: "power4.inOut",
+          onComplete: () => {
+            window.location.href = href;
+          }
+        });
+      });
+    }
+  });
+
+  // Mobile Menu Logic
+  const menuToggle = document.querySelector('.mobile-menu-toggle');
+  const menuOverlay = document.querySelector('.mobile-menu-overlay');
+  const menuClose = document.querySelector('.mobile-menu-close');
+  const mobileLinks = document.querySelectorAll('.mobile-links a');
+
+  if (menuToggle && menuOverlay && menuClose) {
+    const tl = gsap.timeline({ paused: true });
+
+    tl.to(menuOverlay, {
+      opacity: 1,
+      pointerEvents: 'all',
+      duration: 0.5,
+      ease: "power2.out"
+    })
+      .to(mobileLinks, {
+        y: 0,
+        opacity: 1,
+        stagger: 0.1,
+        duration: 0.5,
+        ease: "power2.out"
+      }, "-=0.3");
+
+    menuToggle.addEventListener('click', () => {
+      tl.play();
+    });
+
+    const closeMenu = () => {
+      tl.reverse();
+    };
+
+    menuClose.addEventListener('click', closeMenu);
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        closeMenu();
+        // Allow page transition logic to take over if needed
+      });
+    });
   }
 }
 
