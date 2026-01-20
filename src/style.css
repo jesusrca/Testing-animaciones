@@ -663,7 +663,7 @@ section {
   }
 
   .about-box {
-    transform: scale(0.85);
+    transform: scale(0.65);
     width: 100%;
     padding: 1rem;
   }
