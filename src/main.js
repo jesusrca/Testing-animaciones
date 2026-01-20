@@ -198,10 +198,11 @@ function initAnimations() {
   // Scroll reveal for all .reveal-text
   revealTexts.forEach(revealText => {
     const wordInners = revealText.querySelectorAll('.word-inner')
+    const isMobile = window.innerWidth < 768
     gsap.to(wordInners, {
       scrollTrigger: {
         trigger: revealText,
-        start: "top 90%",
+        start: isMobile ? "top 75%" : "top 85%",
         toggleActions: "play none none reverse"
       },
       y: "0%",
